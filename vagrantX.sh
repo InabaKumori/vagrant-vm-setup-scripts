@@ -1,0 +1,78 @@
+#!/bin/bash
+
+echo "Enter the Vagrant box you want to install (default 'ubuntu/jammy64'): "
+read -r BOX_NAME
+BOX_NAME=${BOX_NAME:-ubuntu/jammy64}
+
+# Convert the box name to a directory name format
+DIR_NAME=${BOX_NAME//\//_}
+
+echo "Enter the name for the project directory (default '${DIR_NAME}'): "
+read -r PROJECT_DIR
+PROJECT_DIR=${PROJECT_DIR:-$DIR_NAME}
+
+# Check if directory exists and create a unique directory name if necessary
+COUNTER=1
+ORIGINAL_PROJECT_DIR=$PROJECT_DIR
+while [ -d "$PROJECT_DIR" ]; do
+  PROJECT_DIR="${ORIGINAL_PROJECT_DIR}_${COUNTER}"
+  let COUNTER=COUNTER+1
+done
+
+# Create the project directory
+mkdir "$PROJECT_DIR"
+echo "Project directory created: $PROJECT_DIR"
+
+cd "$PROJECT_DIR" || exit
+
+echo "Enter the username (default 'vagrant'): "
+read -r USERNAME
+USERNAME=${USERNAME:-vagrant}
+
+echo "Choose authentication type [key/SSH] (default 'SSH'): "
+read -r AUTH_TYPE
+AUTH_TYPE=${AUTH_TYPE:-SSH}
+
+if [ "$AUTH_TYPE" == "SSH" ]; then
+  echo "Enter SSH password (leave blank to generate a random one): "
+  read -r SSH_PASS
+  if [ -z "$SSH_PASS" ]; then
+    SSH_PASS=$(openssl rand -base64 12)
+    echo "Generated SSH password: $SSH_PASS"
+  fi
+else
+  SSH_PASS="Using Key Authentication"
+fi
+
+
+# Generate the Vagrantfile
+cat > Vagrantfile <<EOF
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "$BOX_NAME"
+  config.vm.network "public_network"
+
+  # Provisioning script to update SSH settings
+  config.vm.provision "shell", inline: <<-SHELL
+    echo '$USERNAME:$SSH_PASS' | chpasswd
+    sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config.d/*.conf
+    systemctl restart sshd
+  SHELL
+  
+end
+EOF
+
+# Store configuration for reference
+cat > config_info.txt <<EOF
+Project Directory: $PROJECT_DIR
+Vagrant Box: $BOX_NAME
+Username: $USERNAME
+Authentication Type: $AUTH_TYPE
+Password: $SSH_PASS
+EOF
+
+echo "Vagrant project setup complete."
+vagrant up
+vagrant ssh
