@@ -69,6 +69,9 @@ Vagrant.configure("2") do |config|
   # config.vm.network "forwarded_port", guest: 443, host: 443
   # config.vm.network "forwarded_port", guest: 22, host: 12345
   # config.vm.network "forwarded_port", guest: 54252, host: 54252
+  # config.vm.network "forwarded_port", guest: 54252, host: 54252, protocol: "udp"
+  # config.vm.network :forwarded_port, guest: 54252, guest_ip: "10.0.x.x", host: 54252, host_ip: "0.0.0.0", protocol: "udp"
+  # config.vm.network :forwarded_port, guest: 55555, guest_ip: "10.0.x.x", host: 55555, host_ip: "x.x.x.x", protocol: "udp"
 end
 EOF
 
