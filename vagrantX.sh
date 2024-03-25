@@ -44,7 +44,6 @@ else
   SSH_PASS="Using Key Authentication"
 fi
 
-
 # Generate the Vagrantfile
 cat > Vagrantfile <<EOF
 # -*- mode: ruby -*-
@@ -56,11 +55,20 @@ Vagrant.configure("2") do |config|
 
   # Provisioning script to update SSH settings
   config.vm.provision "shell", inline: <<-SHELL
-    echo '$USERNAME:$SSH_PASS' | chpasswd
-    sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config.d/*.conf
-    systemctl restart sshd
+    echo "$USERNAME:$SSH_PASS" | sudo chpasswd
+    echo -e "PasswordAuthentication yes\nPubkeyAuthentication yes" | sudo tee /etc/ssh/sshd_config.d/0000000_config.conf > /dev/null
+    sudo systemctl restart sshd
   SHELL
   
+  # SSH configuration, uncomment the following for convenience after provisioning
+  # config.ssh.username = "$USERNAME"
+  # config.ssh.password = "$SSH_PASS"
+
+  # Uncomment the following for port-forwards
+  # config.vm.network "forwarded_port", guest: 80, host: 80
+  # config.vm.network "forwarded_port", guest: 443, host: 443
+  # config.vm.network "forwarded_port", guest: 22, host: 12345
+  # config.vm.network "forwarded_port", guest: 54252, host: 54252
 end
 EOF
 
@@ -70,9 +78,12 @@ Project Directory: $PROJECT_DIR
 Vagrant Box: $BOX_NAME
 Username: $USERNAME
 Authentication Type: $AUTH_TYPE
-Password: $SSH_PASS
+SSH Password: $SSH_PASS
 EOF
 
 echo "Vagrant project setup complete."
+echo "Change Vagrantfile to finalize the settings."
+echo $'\n' $'\n' $'\n' $'\n' $'\n'
+
 vagrant up
 vagrant ssh
