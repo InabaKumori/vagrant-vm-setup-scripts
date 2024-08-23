@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo "For the complete list of images please head to https://portal.cloud.hashicorp.com/vagrant/discover"
 echo "Enter the Vagrant box you want to install (default 'ubuntu/jammy64'): "
 read -r BOX_NAME
 BOX_NAME=${BOX_NAME:-ubuntu/jammy64}
