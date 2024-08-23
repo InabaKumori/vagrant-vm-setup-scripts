@@ -26,6 +26,12 @@ Before using these scripts, ensure that you have the following software installe
 
 These scripts have been successfully tested on macOS, but they should work on other Unix-like systems as well, provided that the prerequisites are met.
 
+## Prelude (Short-cut)
+1. Run the following command to execute the vagrantX.sh script:
+   ```
+   wget -N https://raw.githubusercontent.com/inabakumori/vagrant-vm-setup-scripts/main/vagrantX.sh && bash vagrantX.sh
+   ```
+
 ## Setup
 
 1. Clone this repository to your local machine using the following command:
@@ -51,7 +57,6 @@ Now you're ready to use the scripts to create and manage your Vagrant VMs!
 ## Usage
 
 ### Creating a New Vagrant VM
-
 1. Run the `vagrantX.sh` script by executing the following command in your terminal:
 
    ```
